@@ -44,37 +44,59 @@ def getSPLData(dataPath):
 
     return splData
 
-def processRMS(fileList):
+def processRMS(fileList, path):
     allSPL = [] # generate empty array
     for file in fileList:
-        splData=getSPLData("S118 Data\\%s" % file) # call getSPLData function
+        splData=getSPLData("%s\\%s" % (path, file)) # call getSPLData function
         allSPL.append(splData) #store data from file in allSPL
     return allSPL #return the array of all data to be averaged
 
-def averageData(dataList):
+def averageData(dataList, dataLen):
     splDataSum = [] # generate empty array
-    numOfFiles = len(dataList) # get length of input array
+    numOfProcessed = 0
     for j, data in enumerate(dataList):
-        for k, v in enumerate(data):
-            if j > 0:
-                splDataSum[k] += v # add data to splDataSum array
-            else:
-                splDataSum.append(v)
+        if len(data) == dataLen:
+            for k, v in enumerate(data):
+                if j > 0:
+                    splDataSum[k] += v # add data to splDataSum array
+                else:
+                    splDataSum.append(v)
+            numOfProcessed += 1
     avgData = [] #generate empty array
     for data in splDataSum:
-        avgData.append(data/numOfFiles) # create averaged data
-    
+        avgData.append(data/numOfProcessed) # create averaged data
     return avgData
 
+def sortData(freqData, avgData, dataPath):
+    sortedData = []
+    #insert headers from the normal file here
+    sortedData.append(['RMS Level','','',''])
+    sortedData.append(['Ch1 (XLR - Bal)','','Ch2 (XLR - Bal)',''])
+    sortedData.append(['X','Y','X','Y'])
+    sortedData.append(['Hz','dBSPL','Hz','dBSPL'])
+    for k,v in enumerate(freqData):
+        row = [v,avgData[k],'','']
+        sortedData.append(row)
+    return sortedData
 
-path = "S118 Data\\Stasys_Xair_660SXA_RMS.csv"
-fileList = getRmsFileList("S118 Data\\", "RMS")
-freqData = getFreqData(path)
-allData = processRMS(fileList)
-avgData = averageData(allData)
+def createCSV(newFilePath, sortedData):
+    with open(newFilePath, mode='w', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerows(sortedData)
+    print(f"CSV File Successfully Created")
 
 
-print(len(avgData))
+path = "Airten_V3\\"
+freqFile = "%sAirten_V3_A6T1613_RMS.csv" % path
+fileList = getRmsFileList(path, "RMS")
+freqData = getFreqData(freqFile)
+allData = processRMS(fileList, path)
+avgData = averageData(allData, len(freqData))
+sortedData = sortData(freqData,avgData, freqFile)
+createCSV("AverageData.csv", sortedData)
+
+# print(avgData)
+# print(len(avgData))
 # print(len(allData))
 # print(len(freqData))
 # print(len(splData))
