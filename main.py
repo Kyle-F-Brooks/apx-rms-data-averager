@@ -1,5 +1,4 @@
 import csv
-import shutil
 import os
 
 # Function to get a list of all files to read through
