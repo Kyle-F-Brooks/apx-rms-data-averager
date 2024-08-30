@@ -1,6 +1,8 @@
 import csv
 import os
 
+from tkinter import filedialog as fd
+
 # Function to get a list of all files to read through
 def getRmsFileList(inputPath, inputType):
     fileList = [] # generate empty array
@@ -85,8 +87,10 @@ def createCSV(newFilePath, sortedData):
     print(f"CSV File Successfully Created")
 
 
-path = "Airten_V3\\"
-freqFile = "%sAirten_V3_A6T1613_RMS.csv" % path
+path = fd.askdirectory(title="Select source folder", initialdir = '/')
+# path = "Airten_V3\\"
+freqFile = fd.askopenfilename(title='Open Latest Measured File', initialdir='/', filetypes=[('CSV Files', '*.csv')])
+# freqFile = "%sAirten_V3_A6T1613_RMS.csv" % path
 fileList = getRmsFileList(path, "RMS")
 freqData = getFreqData(freqFile)
 allData = processRMS(fileList, path)
